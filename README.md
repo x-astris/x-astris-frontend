@@ -1,14 +1,19 @@
-This is a Next.js project bootstrapped with create-next-app.
+# X-Astris Frontend
 
-## Getting Started
+This is a **Next.js** project built with `create-next-app` and serves as the frontend for the **X-Astris** financial dashboard application.
 
-First, run the development server:
+## 🚀 Getting Started (Development)
+
+Run the development server:
 
 ```bash
+npm install
 npm run dev
+
 # or
+yarn install
 yarn dev
+
 # or
+pnpm install
 pnpm dev
-# or
-bun dev
