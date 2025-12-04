@@ -42,7 +42,27 @@ const fmtFactory = (locale: string) => (v: number) =>
     maximumFractionDigits: 0,
   });
 
+const fmtAbs = (v: number, fmt: (n: number) => string) => {
+  const n = Number(v);
+  return fmt(Math.abs(n));
+};
+
+// For values where a NEGATIVE means cash outflow (EBIT, OCF, etc.)
+const fmtNegToParens = (v: number, fmt: (n: number) => string) => {
+  const n = Number(v);
+  if (n < 0) return `(${fmt(Math.abs(n))})`;
+  return fmt(Math.abs(n));
+};
+
+// For values where a POSITIVE means cash outflow (WC delta, taxes)
+const fmtPosToParens = (v: number, fmt: (n: number) => string) => {
+  const n = Number(v);
+  if (n > 0) return `(${fmt(Math.abs(n))})`;
+  return fmt(Math.abs(n));
+};
+
 export default function CashflowInput({ projectId, startYear, forecastYears, }: { projectId: string; startYear: number; forecastYears: number }) {
+
   
     const years = useMemo(
     () => Array.from({ length: forecastYears }, (_, i) => startYear + i),
@@ -262,254 +282,195 @@ export default function CashflowInput({ projectId, startYear, forecastYears, }: 
           </thead>
 
           <tbody>
-            {/* ---------- OPERATING CASH FLOW ---------- */}
-            <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-              <td style={left}>Operating Cash Flow</td>
-              {years.map((y, idx) => (
-                <td
-                  key={y}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                />
-              ))}
-            </tr>
+           
+           {/* ---------- OPERATING CASH FLOW ---------- */}
+<tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+  <td style={left}>Operating Cash Flow</td>
+  {years.map((y, idx) => (
+    <td key={y} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }} />
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>EBIT</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.ebit)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>EBIT</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.operating.ebit, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Taxes</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.tax)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Taxes</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.operating.tax, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>NOPLAT</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.noplat)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>NOPLAT</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.operating.noplat, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>+ Depreciation</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.depreciation)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>+ Depreciation</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.operating.depreciation, fmt)}
+    </td>
+  ))}
+</tr>
 
-            {/* ---------- WORKING CAPITAL ---------- */}
-            <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-              <td style={left}>Working Capital Changes</td>
-              {years.map((y, idx) => (
-                <td
-                  key={y}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                />
-              ))}
-            </tr>
+{/* ---------- WORKING CAPITAL ---------- */}
+<tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+  <td style={left}>Working Capital Changes</td>
+  {years.map((y, idx) => (
+    <td key={y} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }} />
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Inventory</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.wcDetails.invChange)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Inventory</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.wcDetails.invChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Receivables</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.wcDetails.recChange)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Receivables</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.wcDetails.recChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Other Current Assets</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.wcDetails.ocaChange)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Other Current Assets</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.wcDetails.ocaChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Payables</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.wcDetails.payChange)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Payables</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.wcDetails.payChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Other Current Liabilities</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.wcDetails.oclChange)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Other Current Liabilities</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.wcDetails.oclChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr style={{ fontWeight: "bold" }}>
-              <td style={left}>Δ Working Capital</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.wcChange)}
-                </td>
-              ))}
-            </tr>
+<tr style={{ fontWeight: "bold" }}>
+  <td style={left}>Δ Working Capital</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.operating.wcChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr style={{ fontWeight: "bold", background: "#f7f7f7" }}>
-              <td style={left}>Operating Cash Flow</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.operating.ocf)}
-                </td>
-              ))}
-            </tr>
+<tr style={{ fontWeight: "bold", background: "#f7f7f7" }}>
+  <td style={left}>Operating Cash Flow</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.operating.ocf, fmt)}
+    </td>
+  ))}
+</tr>
 
-            {/* ---------- INVESTING ---------- */}
-            <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-              <td style={left}>Investing Cash Flow</td>
-              {years.map((y, idx) => (
-                <td
-                  key={y}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                />
-              ))}
-            </tr>
+{/* ---------- INVESTING ---------- */}
+<tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+  <td style={left}>Investing Cash Flow</td>
+  {years.map((y, idx) => (
+    <td key={y} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }} />
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Investments</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.investing.investments)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Investments</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.investing.investments, fmt)}
+    </td>
+  ))}
+</tr>
 
-            {/* ---------- FINANCING ---------- */}
-            <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-              <td style={left}>Financing Cash Flow</td>
-              {years.map((y, idx) => (
-                <td
-                  key={y}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                />
-              ))}
-            </tr>
+{/* ---------- FINANCING ---------- */}
+<tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+  <td style={left}>Financing Cash Flow</td>
+  {years.map((y, idx) => (
+    <td key={y} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }} />
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Interest</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.financing.interest)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Interest</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtPosToParens(c.financing.interest, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Long-term Debt</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.financing.dLong)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Long-term Debt</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.financing.dLong, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr>
-              <td style={left}>Δ Short-term Debt</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.financing.dShort)}
-                </td>
-              ))}
-            </tr>
+<tr>
+  <td style={left}>Δ Short-term Debt</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.financing.dShort, fmt)}
+    </td>
+  ))}
+</tr>
 
-            {/* ---------- NET CASH ---------- */}
-            <tr style={{ fontWeight: "bold", background: "#e8e8e8" }}>
-              <td style={left}>Net Change in Cash</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.netChange)}
-                </td>
-              ))}
-            </tr>
+{/* ---------- NET CASH ---------- */}
+<tr style={{ fontWeight: "bold", background: "#e8e8e8" }}>
+  <td style={left}>Net Change in Cash</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmtNegToParens(c.netChange, fmt)}
+    </td>
+  ))}
+</tr>
 
-            <tr style={{ background: "#f7f7f7" }}>
-              <td style={left}>Balance Sheet Cash Change</td>
-              {cashflow.map((c, idx) => (
-                <td
-                  key={c.year}
-                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-                >
-                  {fmt(c.cashCheck)}
-                </td>
-              ))}
-            </tr>
+<tr style={{ background: "#f7f7f7" }}>
+  <td style={left}>Balance Sheet Cash Change</td>
+  {cashflow.map((c, idx) => (
+    <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+      {c.year === 2025 ? "" : fmt(c.cashCheck)}
+    </td>
+  ))}
+</tr>
+
+
+
           </tbody>
         </table>
       </div>

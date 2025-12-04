@@ -85,6 +85,7 @@ export default function PnlInput({
   forecastYears: number;
 }) {
   const locale = getLocale(); // <-- detect browser locale
+  const [showWarning, setShowWarning] = useState(true);
 
   const fmt = (v: number) =>
     (v ?? 0).toLocaleString(locale, {
@@ -97,6 +98,36 @@ export default function PnlInput({
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
     });
+
+    const fmtNormal = (v: number, decimals = 0) => {
+  const n = v ?? 0;
+
+  const formatted = Math.abs(n).toLocaleString(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  return n < 0 ? `(${formatted})` : formatted;
+};
+
+    const fmtCost = (v: number) => {
+  const n = v ?? 0;
+  const formatted = Math.abs(n).toLocaleString(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  // Positive numbers → wrap in ()
+  if (n > 0) return `(${formatted})`;
+
+  // Negative numbers → show abs value WITHOUT minus, without ()
+  if (n < 0) return formatted;
+
+  // Zero stays "0"
+  return formatted;
+};
+
+    
 
   /* -------------------------------------------------------------------- */
 
@@ -293,6 +324,7 @@ export default function PnlInput({
       }
 
       setSaved(true);
+      setShowWarning(false);
     } catch (e) {
       console.error("SAVE ERROR:", e);
       setError("Failed to save P&L");
@@ -307,22 +339,39 @@ export default function PnlInput({
 
   return (
 <>
-  <div
-    style={{
-      position: "sticky",
-      top: 0,
-      zIndex: 1000,
-      background: "white",
-    }}
-  >
-    <TopTabs
-      projectId={projectId}
-      onSave={save}
-      saving={saving}
-      saved={saved}
-      error={error}
-    />
-  </div>
+
+ <div
+  style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+    background: "white",
+  }}
+>
+  <TopTabs
+    projectId={projectId}
+    onSave={save}
+    saving={saving}
+    saved={saved}
+    error={error}
+  />
+
+  {showWarning && (
+    <div
+      style={{
+        padding: "8px 12px",
+        background: "#fff3cd",
+        borderBottom: "1px solid #ffeeba",
+        color: "#856404",
+        fontSize: 14,
+        textAlign: "center",
+      }}
+    >
+      ⚠️ Please click <strong>Save</strong> before navigating away — otherwise your input will be lost.
+    </div>
+  )}
+</div>
+
 
   <div style={{ padding: 24 }}>
 
@@ -346,7 +395,7 @@ export default function PnlInput({
       >
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Line</th>
+            <th style={{ ...head, ...COL_FIRST }}>P&L Input</th>
             {years.map((y, idx) => (
               <th
                 key={y}
@@ -626,7 +675,7 @@ export default function PnlInput({
       >
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Metric</th>
+            <th style={{ ...head, ...COL_FIRST }}>P&L Output</th>
             {years.map((y, idx) => (
               <th key={y} style={{ ...head, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
                 {y}
@@ -640,7 +689,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>Revenue</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.revenue)}
+                {fmtNormal(c.revenue)}
               </td>
             ))}
           </tr>
@@ -649,7 +698,7 @@ export default function PnlInput({
             <td style={left}>COGS</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.cogs)}
+                {fmtCost(c.cogs)}
               </td>
             ))}
           </tr>
@@ -658,7 +707,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>Gross Margin</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.grossMargin)}
+                {fmtNormal(c.grossMargin)}
               </td>
             ))}
           </tr>
@@ -667,7 +716,7 @@ export default function PnlInput({
             <td style={left}>OPEX</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.opex)}
+                {fmtCost(c.opex)}
               </td>
             ))}
           </tr>
@@ -676,7 +725,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>EBITDA</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.EBITDA)}
+                {fmtNormal(c.EBITDA)}
               </td>
             ))}
           </tr>
@@ -685,7 +734,7 @@ export default function PnlInput({
             <td style={left}>Depreciation</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.dep)}
+                {fmtCost(c.dep)}
               </td>
             ))}
           </tr>
@@ -694,7 +743,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>EBIT</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.EBIT)}
+                {fmtNormal(c.EBIT)}
               </td>
             ))}
           </tr>
@@ -703,7 +752,7 @@ export default function PnlInput({
             <td style={left}>Interest</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.int)}
+                {fmtCost(c.int)}
               </td>
             ))}
           </tr>
@@ -712,7 +761,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>EBT</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.EBT)}
+                {fmtNormal(c.EBT)}
               </td>
             ))}
           </tr>
@@ -721,7 +770,7 @@ export default function PnlInput({
             <td style={left}>Tax</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.tax)}
+                {fmtCost(c.tax)}
               </td>
             ))}
           </tr>
@@ -730,7 +779,7 @@ export default function PnlInput({
             <td style={{ ...left, fontWeight: "bold" }}>Net Result</td>
             {computed.map((c, idx) => (
               <td key={c.year} style={{ ...cell, fontWeight: "bold", ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(c.netResult)}
+                {fmtNormal(c.netResult)}
               </td>
             ))}
           </tr>

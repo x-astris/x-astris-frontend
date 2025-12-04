@@ -114,7 +114,7 @@ export default function FinancingTable({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Line</th>
+            <th style={{ ...head, ...COL_FIRST }}>Financing item</th>
             {years.map((y, idx) => (
               <th
                 key={y}
@@ -145,7 +145,7 @@ export default function FinancingTable({
                       onChange={(e) =>
                         updateRow(year, "equityInput", Number(e.target.value))
                       }
-                      step={500}
+                      step={100}
                       style={inputMoney}
                     />
                   ) : (
@@ -179,7 +179,7 @@ export default function FinancingTable({
                     onChange={(e) =>
                       updateRow(year, "longDebt", Number(e.target.value))
                     }
-                    step={500}
+                    step={100}
                     style={inputMoney}
                   />
                 </td>
@@ -200,7 +200,7 @@ export default function FinancingTable({
                     onChange={(e) =>
                       updateRow(year, "shortDebt", Number(e.target.value))
                     }
-                    step={500}
+                    step={100}
                     style={inputMoney}
                   />
                 </td>

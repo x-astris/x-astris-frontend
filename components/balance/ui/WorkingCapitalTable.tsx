@@ -268,6 +268,7 @@ export default function WorkingCapitalTable({
                       style={inputMoney}
                       value={rows[idx].inventory}
                       onChange={handleYear1WCChange("inventory", year)}
+                      step={100}
                     />
                   ) : (
                     fmt(val, locale)
@@ -298,6 +299,7 @@ export default function WorkingCapitalTable({
                       style={inputMoney}
                       value={rows[idx].receivables}
                       onChange={handleYear1WCChange("receivables", year)}
+                      step={100}
                     />
                   ) : (
                     fmt(val, locale)
@@ -336,6 +338,7 @@ export default function WorkingCapitalTable({
                         "otherCurrentAssets",
                         year
                       )}
+                      step={100}
                     />
                   ) : (
                     fmt(val, locale)
@@ -366,6 +369,7 @@ export default function WorkingCapitalTable({
                       style={inputMoney}
                       value={rows[idx].payables}
                       onChange={handleYear1WCChange("payables", year)}
+                      step={100}
                     />
                   ) : (
                     fmt(val, locale)
@@ -404,6 +408,7 @@ export default function WorkingCapitalTable({
                         "otherCurrentLiabilities",
                         year
                       )}
+                      step={100}
                     />
                   ) : (
                     fmt(val, locale)

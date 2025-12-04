@@ -40,6 +40,8 @@ const fmtFactory = (locale: string) => (v: number) =>
     maximumFractionDigits: 0,
   });
 
+  
+
 /* ----------------------- Component ----------------------- */
 
 export default function BalanceSheetTable({
@@ -58,6 +60,40 @@ export default function BalanceSheetTable({
   const locale = getLocale();
   const fmt = fmtFactory(locale);
 
+/* ------------------------- FORMATTERS ------------------------- */
+
+// Standard (normal) items:
+// + positive: 12,500
+// - negative: (12,500)
+const fmtNormal = (v: number, decimals = 0) => {
+  const n = v ?? 0;
+
+  const formatted = Math.abs(n).toLocaleString(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  return n < 0 ? `(${formatted})` : formatted;
+};
+
+// Cost items:
+// + positive → (12,500)
+// - negative → 12,500 (no minus, no parentheses)
+const fmtCost = (v: number, decimals = 0) => {
+  const n = v ?? 0;
+
+  const formatted = Math.abs(n).toLocaleString(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  if (n > 0) return `(${formatted})`;
+  if (n < 0) return formatted; // negative shown positive
+  return formatted; // zero
+};
+
+
+
   return (
     <div style={{ marginBottom: 32 }}>
       <h3 style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
@@ -67,7 +103,7 @@ export default function BalanceSheetTable({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Line</th>
+            <th style={{ ...head, ...COL_FIRST }}>Balance Sheet Output</th>
 
             {years.map((y, idx) => (
               <th
@@ -89,7 +125,7 @@ export default function BalanceSheetTable({
             <td style={left}>Fixed Assets</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.fixedAssets)}
+                {fmtNormal(r.fixedAssets)}
               </td>
             ))}
           </tr>
@@ -99,7 +135,7 @@ export default function BalanceSheetTable({
             <td style={left}>Inventory</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.wcInventory)}
+                {fmtNormal(r.wcInventory)}
               </td>
             ))}
           </tr>
@@ -119,7 +155,7 @@ export default function BalanceSheetTable({
             <td style={left}>Other Assets</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.wcOtherCurrentAssets)}
+                {fmtNormal(r.wcOtherCurrentAssets)}
               </td>
             ))}
           </tr>
@@ -129,7 +165,7 @@ export default function BalanceSheetTable({
             <td style={left}>Payables</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.wcPayables)}
+                {fmtCost(r.wcPayables)}
               </td>
             ))}
           </tr>
@@ -139,7 +175,7 @@ export default function BalanceSheetTable({
             <td style={left}>Other Liabilities</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.wcOtherCurrentLiabilities)}
+                {fmtCost(r.wcOtherCurrentLiabilities)}
               </td>
             ))}
           </tr>
@@ -149,7 +185,7 @@ export default function BalanceSheetTable({
             <td style={left}>Working Capital</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.workingCapital)}
+                {fmtNormal(r.workingCapital)}
               </td>
             ))}
           </tr>
@@ -159,7 +195,7 @@ export default function BalanceSheetTable({
             <td style={left}>Cash (Balancing)</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.cash)}
+                {fmtNormal(r.cash)}
               </td>
             ))}
           </tr>
@@ -171,7 +207,7 @@ export default function BalanceSheetTable({
               const total = r.fixedAssets + r.workingCapital + r.cash;
               return (
                 <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                  {fmt(total)}
+                  {fmtNormal(total)}
                 </td>
               );
             })}
@@ -182,7 +218,7 @@ export default function BalanceSheetTable({
             <td style={left}>Equity</td>
             {computedRows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.equity)}
+                {fmtNormal(r.equity)}
               </td>
             ))}
           </tr>
@@ -192,7 +228,7 @@ export default function BalanceSheetTable({
             <td style={left}>Long Term Debt</td>
             {rows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.longDebt)}
+                {fmtNormal(r.longDebt)}
               </td>
             ))}
           </tr>
@@ -201,7 +237,7 @@ export default function BalanceSheetTable({
             <td style={left}>Short Term Debt</td>
             {rows.map((r, idx) => (
               <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.shortDebt)}
+                {fmtNormal(r.shortDebt)}
               </td>
             ))}
           </tr>
@@ -222,7 +258,7 @@ export default function BalanceSheetTable({
                     ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
                   }}
                 >
-                  {fmt(debt + r.equity)}
+                  {fmtNormal(debt + r.equity)}
                 </td>
               );
             })}

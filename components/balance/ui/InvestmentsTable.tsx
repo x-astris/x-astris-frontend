@@ -94,7 +94,7 @@ export default function InvestmentsTable({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Investment - input</th>
+            <th style={{ ...head, ...COL_FIRST }}>Investments</th>
 
             {years.map((y, idx) => (
               <th
