@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
-
+import LogoutButton from "@/components/LogoutButton";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -59,8 +59,13 @@ export default function ProjectsPage() {
   /* ----------------------------- UI RENDER ----------------------------- */
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-bold mb-6">Your Projects</h1>
+<main className="max-w-3xl mx-auto px-6 py-10">
+
+  <div className="flex justify-between items-center mb-6">
+    <h1 className="text-3xl font-bold">Your Projects</h1>
+
+    <LogoutButton />
+  </div>
 
       {/* ERROR */}
       {error && <p className="text-red-600 mb-4">{error}</p>}

@@ -1,6 +1,7 @@
 // app/login/page.tsx
 
 import LoginForm from "@/components/auth/LoginForm";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
@@ -89,6 +90,23 @@ export default function LoginPage() {
 </p>
 
       </div>
+
+      <div
+  style={{
+    position: "absolute",
+    bottom: 20,
+    textAlign: "center",
+    width: "100%",
+    fontSize: 13,
+    color: "#666",
+  }}
+>
+  <Link href="../privacy" style={{ textDecoration: "underline", color: "#666" }}>
+    Privacy Policy
+  </Link>
+</div>
     </main>
+
+    
   );
 }
