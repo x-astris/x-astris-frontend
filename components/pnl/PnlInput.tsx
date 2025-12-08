@@ -99,22 +99,22 @@ export default function PnlInput({
       maximumFractionDigits: 1,
     });
 
-    const fmtNormal = (v: number, decimals = 0) => {
-  const n = v ?? 0;
+  const fmtNormal = (v: number, decimals = 0) => {
+    const n = v ?? 0;
 
-  const formatted = Math.abs(n).toLocaleString(locale, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    const formatted = Math.abs(n).toLocaleString(locale, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
   });
 
   return n < 0 ? `(${formatted})` : formatted;
 };
 
-    const fmtCost = (v: number) => {
-  const n = v ?? 0;
-  const formatted = Math.abs(n).toLocaleString(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+  const fmtCost = (v: number) => {
+    const n = v ?? 0;
+    const formatted = Math.abs(n).toLocaleString(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
   });
 
   // Positive numbers → wrap in ()

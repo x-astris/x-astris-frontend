@@ -26,6 +26,7 @@ export default function RegisterForm() {
       }
 
       // Redirect to login after success
+      alert("Check your email to verify your account.");
       window.location.href = "/login";
     } catch (err: any) {
       setError(err.message);
