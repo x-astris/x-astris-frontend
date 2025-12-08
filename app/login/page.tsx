@@ -68,6 +68,26 @@ export default function LoginPage() {
             Sign up
           </a>
         </p>
+
+        {/* Forgot Password Link */}
+<p
+  style={{
+    marginTop: 16,
+    textAlign: "center",
+    fontSize: 14,
+  }}
+>
+  <a
+    href="/forgot-password"
+    style={{
+      color: "#0070f3",
+      textDecoration: "underline",
+    }}
+  >
+    Forgot your password?
+  </a>
+</p>
+
       </div>
     </main>
   );
