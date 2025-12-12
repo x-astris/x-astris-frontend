@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ResetPasswordClient from "@/components/auth/ResetPasswordClient";
 import Link from "next/link";
 import "../login/login.css";
@@ -28,8 +29,10 @@ export default function ResetPasswordPage() {
             Choose a new password to secure your account
           </p>
 
-          {/* 🔑 Token is resolved client-side */}
-          <ResetPasswordClient />
+          {/* ✅ REQUIRED for useSearchParams */}
+          <Suspense fallback={<p>Loading…</p>}>
+            <ResetPasswordClient />
+          </Suspense>
 
           <p className="login-meta">
             Remembered your password?{" "}
