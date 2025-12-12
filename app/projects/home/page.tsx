@@ -47,7 +47,7 @@ export default function ProjectsPage() {
         setProjects(res.data || []);
       } catch (e: any) {
         console.error(e);
-        setError("Failed to load projects. Are you logged in?");
+        setError("Failed to load projects.");
       } finally {
         setLoading(false);
       }

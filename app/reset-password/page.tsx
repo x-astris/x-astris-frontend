@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import Link from "next/link";
 import "../login/login.css";
