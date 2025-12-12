@@ -1,16 +1,8 @@
-export const dynamic = "force-dynamic";
-
-import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
+import ResetPasswordClient from "@/components/auth/ResetPasswordClient";
 import Link from "next/link";
 import "../login/login.css";
 
-export default function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: { token?: string };
-}) {
-  const token = searchParams.token ?? null;
-
+export default function ResetPasswordPage() {
   return (
     <main className="login-page">
       {/* LEFT – BRANDING */}
@@ -20,7 +12,7 @@ export default function ResetPasswordPage({
         <h1>Financial modelling for value-driven decisions</h1>
 
         <ul>
-          <li>Cash flow modelling - Fast and easy</li>
+          <li>Cash flow modelling – Fast and easy</li>
           <li>Simple driver-based interface</li>
           <li>Choose up to 10 forecast years</li>
           <li>Only 1 base year is required to start modelling</li>
@@ -31,17 +23,13 @@ export default function ResetPasswordPage({
       <section className="login-panel">
         <div className="login-card">
           <h2>Reset password</h2>
+
           <p className="login-subtitle">
             Choose a new password to secure your account
           </p>
 
-          {token ? (
-            <ResetPasswordForm token={token} />
-          ) : (
-            <p style={{ color: "#b91c1c" }}>
-              Invalid or expired reset link.
-            </p>
-          )}
+          {/* 🔑 Token is resolved client-side */}
+          <ResetPasswordClient />
 
           <p className="login-meta">
             Remembered your password?{" "}
