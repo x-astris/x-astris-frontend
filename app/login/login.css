@@ -1,0 +1,227 @@
+/* ================================
+   LOGIN PAGE – X-ASTRiS
+   ================================ */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  background: #f3f5f8;
+  position: relative;
+  padding-bottom: 48px;
+}
+
+/* ================================
+   LEFT SIDE – BRANDING
+   ================================ */
+
+.login-branding {
+  display: none;
+  flex: 0 0 34%;
+  padding: 80px 64px;
+  background: #f9fafb;
+  border-right: 1px solid #e6eaf0;
+  color: #1f2933;
+}
+
+.product-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #7b8794;
+  margin-bottom: 28px;
+}
+
+.login-branding h1 {
+  font-size: 30px;
+  line-height: 1.35;
+  margin-bottom: 36px;
+  color: #0b3d91;
+  font-weight: 700;
+}
+
+.login-branding ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.login-branding li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 18px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #4a5568;
+}
+
+.login-branding li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: #0b3d91;
+  font-weight: 600;
+}
+
+/* ================================
+   RIGHT SIDE – LOGIN PANEL
+   ================================ */
+
+.login-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: #f3f5f8;
+}
+
+/* ================================
+   LOGIN CARD
+   ================================ */
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 40px 36px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+}
+
+.login-card h2 {
+  text-align: center;
+  color: #0b3d91;
+  margin-bottom: 12px;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  text-align: center;
+  color: #667085;
+  margin-bottom: 32px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ================================
+   AUTH FORM CONTROLS
+   ================================ */
+
+.auth-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+
+  border-radius: 8px;
+  border: 1px solid #d0d5dd;
+
+  background: #f1f5f9; /* light grey like login */
+  font-size: 14.5px;
+  color: #111827;
+}
+
+.auth-input::placeholder {
+  color: #98a2b3;
+}
+
+.auth-input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 12px;
+
+  background: #0070f3; /* primary action blue */
+  color: #ffffff;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-button:hover {
+  background: #0059c1;
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Messages below forms */
+.auth-message {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #0070f3;
+}
+
+/* ================================
+   LINKS / META
+   ================================ */
+
+.login-link,
+.login-meta {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link a,
+.login-meta a {
+  color: #0b3d91;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(11, 61, 145, 0.35);
+}
+
+.login-link a:hover,
+.login-meta a:hover {
+  border-bottom-color: #0b3d91;
+}
+
+.login-meta {
+  font-size: 13px;
+  color: #667085;
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+
+.login-footer {
+  position: absolute;
+  bottom: 16px;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: #7b8794;
+}
+
+.login-footer a {
+  color: #7b8794;
+  text-decoration: none;
+  border-bottom: 1px solid #cbd2d9;
+}
+
+.login-footer a:hover {
+  border-bottom-color: #7b8794;
+}
+
+/* ================================
+   DESKTOP BREAKPOINT
+   ================================ */
+
+@media (min-width: 900px) {
+  .login-branding {
+    display: block;
+  }
+}

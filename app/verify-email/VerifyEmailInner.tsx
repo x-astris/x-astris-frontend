@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function VerifyEmailInner() {
   const params = useSearchParams();
   const router = useRouter();
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
 
   useEffect(() => {
     const token = params.get("token");
+
     if (!token) {
       setStatus("error");
       return;
@@ -30,13 +34,41 @@ export default function VerifyEmailInner() {
         setTimeout(() => router.push("/login?verified=1"), 2000);
       })
       .catch(() => setStatus("error"));
-  }, []);
+  }, [params, router]);
+
+  if (status === "loading") {
+    return (
+      <>
+        <h2>Verifying email</h2>
+        <p className="login-subtitle">
+          Please wait while we verify your email address.
+        </p>
+      </>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <>
+        <h2>Email verified</h2>
+        <p className="login-subtitle">
+          Your email address has been successfully verified.
+          Redirecting you to the login page.
+        </p>
+      </>
+    );
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      {status === "loading" && <p>Verifying your email...</p>}
-      {status === "success" && <p>Email verified! Redirecting to login…</p>}
-      {status === "error" && <p>Invalid or expired verification link.</p>}
-    </div>
+    <>
+      <h2>Verification failed</h2>
+      <p className="login-subtitle">
+        This verification link is invalid or has expired.
+      </p>
+
+      <Link href="/login" className="auth-button">
+        Go to login
+      </Link>
+    </>
   );
 }
