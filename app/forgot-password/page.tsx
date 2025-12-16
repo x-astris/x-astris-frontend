@@ -36,9 +36,11 @@ export default function ForgotPasswordPage() {
         </div>
       </section>
 
-      <footer className="login-footer">
-        <Link href="/privacy">Privacy Policy</Link>
-      </footer>
+<footer className="login-footer">
+  <Link href="/privacy">Privacy Policy</Link>
+  <span className="login-footer-separator">·</span>
+  <Link href="/terms">Terms &amp; Conditions</Link>
+</footer>
     </main>
   );
 }
