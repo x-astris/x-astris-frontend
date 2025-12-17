@@ -2,11 +2,11 @@
 
 import { useMemo } from "react";
 import { BalanceRow, ComputedRow, RatioRow } from "../types/balance";
-import { PnlRow } from "../types/pnl";
+import type { PnlModelRow } from "@/components/pnl/hooks/usePnlModel";
 
 export function useComputedBalance(
   rows: BalanceRow[],
-  pnlComputed: PnlRow[],
+  pnlComputed: PnlModelRow[],
   years: number[],
   ratios: RatioRow[]
 ) {
@@ -27,26 +27,34 @@ export function useComputedBalance(
       const cogs = pnlYear?.cogs ?? 0;
 
       /* ---------------- FIXED ASSETS ---------------- */
+
       const depPct = (row.depreciationPct ?? 0) / 100;
 
       const depreciation =
-        idx === 0 ? row.depreciationFromPnl ?? 0 : prevFA * depPct;
+        idx === 0
+          ? pnlYear?.dep ?? 0
+          : prevFA * depPct;
 
       const fixedAssets =
-        idx === 0 ? prevFA : prevFA + row.investments - depreciation;
+        idx === 0
+          ? prevFA
+          : prevFA + row.investments - depreciation;
 
       /* ---------------- NET RESULT ---------------- */
+
       const netResult = pnlYear?.netResult ?? 0;
 
       /* ---------------- EQUITY ROLL ---------------- */
+
       const equity =
-        idx === 0 ? row.equityInput ?? 0 : prevEquity + netResult;
+        idx === 0
+          ? row.equityInput ?? 0
+          : prevEquity + netResult;
 
       prevEquity = equity;
 
-      /* ---------------- WC COMPUTED ---------------- */
+      /* ---------------- WORKING CAPITAL ---------------- */
 
-      // INPUT ONLY FOR YEAR 1
       let wcInventory: number;
       let wcReceivables: number;
       let wcOtherCurrentAssets: number;
@@ -54,14 +62,12 @@ export function useComputedBalance(
       let wcOtherCurrentLiabilities: number;
 
       if (idx === 0) {
-        // Year 1 uses manual inputs
         wcInventory = row.inventory ?? 0;
         wcReceivables = row.receivables ?? 0;
         wcOtherCurrentAssets = row.otherCurrentAssets ?? 0;
         wcPayables = row.payables ?? 0;
         wcOtherCurrentLiabilities = row.otherCurrentLiabilities ?? 0;
       } else {
-        // Years 2+ use computed values based on ratios (A1 method)
         const dio = ratio?.dio ?? 0;
         const dso = ratio?.dso ?? 0;
         const dpo = ratio?.dpo ?? 0;
@@ -87,18 +93,21 @@ export function useComputedBalance(
         wcOtherCurrentLiabilities;
 
       /* ---------------- CASH ---------------- */
-      const totalDebt = (row.longDebt ?? 0) + (row.shortDebt ?? 0);
 
-      const cash = equity + totalDebt - (fixedAssets + workingCapital);
+      const totalDebt =
+        (row.longDebt ?? 0) + (row.shortDebt ?? 0);
+
+      const cash =
+        equity + totalDebt - (fixedAssets + workingCapital);
 
       /* ---------------- INTEREST ---------------- */
-      let interest;
+
+      let interest: number;
 
       if (idx === 0) {
-        interest = row.interestFromPnl ?? 0;
+        interest = pnlYear?.int ?? 0;
       } else {
         const prevRow = rows[idx - 1];
-
         const prevDebt =
           (prevRow.longDebt ?? 0) + (prevRow.shortDebt ?? 0);
 
@@ -109,31 +118,32 @@ export function useComputedBalance(
         interest = Math.round(avgDebt * (rate / 100));
       }
 
-      /* ---------------- KPI RATIOS (display only) ---------------- */
+      /* ---------------- KPI RATIOS ---------------- */
 
       const otherCurrentAssetsPct =
-        revenue > 0 ? (wcOtherCurrentAssets / revenue) * 100 : 0;
+        revenue > 0
+          ? (wcOtherCurrentAssets / revenue) * 100
+          : 0;
 
       const otherCurrentLiabilitiesPct =
-        revenue > 0 ? (wcOtherCurrentLiabilities / revenue) * 100 : 0;
+        revenue > 0
+          ? (wcOtherCurrentLiabilities / revenue) * 100
+          : 0;
 
-     /* ---------------- KPI: DIO / DSO / DPO ---------------- */
+      let dio, dso, dpo;
 
-let dio, dso, dpo;
+      if (idx === 0) {
+        dio = cogs > 0 ? (wcInventory / cogs) * 365 : 0;
+        dso = revenue > 0 ? (wcReceivables / revenue) * 365 : 0;
+        dpo = cogs > 0 ? (wcPayables / cogs) * 365 : 0;
+      } else {
+        dio = ratio?.dio ?? 0;
+        dso = ratio?.dso ?? 0;
+        dpo = ratio?.dpo ?? 0;
+      }
 
-if (idx === 0) {
-  // Year 1: calculate from WC inputs + PNL
-  dio = cogs > 0 ? (wcInventory / cogs) * 365 : 0;
-  dso = revenue > 0 ? (wcReceivables / revenue) * 365 : 0;
-  dpo = cogs > 0 ? (wcPayables / cogs) * 365 : 0;
-} else {
-  // Future years: use ratio inputs
-  dio = ratio?.dio ?? 0;
-  dso = ratio?.dso ?? 0;
-  dpo = ratio?.dpo ?? 0;
-}
-       
-        /* ---------------- ADD ROW ---------------- */
+      /* ---------------- PUSH RESULT ---------------- */
+
       result.push({
         ...row,
         fixedAssets,
@@ -143,7 +153,6 @@ if (idx === 0) {
         cash,
         interest,
 
-        // NEW WC FIELDS
         wcInventory,
         wcReceivables,
         wcOtherCurrentAssets,
@@ -154,12 +163,11 @@ if (idx === 0) {
         capitalEmployed: fixedAssets + workingCapital,
         equityDebt: equity + totalDebt,
 
-        // DISPLAY KPIs
         dio,
         dso,
         dpo,
         otherCurrentAssetsPct,
-        otherCurrentLiabilitiesPct
+        otherCurrentLiabilitiesPct,
       });
 
       prevFA = fixedAssets;

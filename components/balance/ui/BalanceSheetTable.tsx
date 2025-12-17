@@ -1,110 +1,62 @@
 "use client";
 
-import type { CSSProperties } from "react";
-import { BalanceRow, ComputedRow, RatioRow } from "../types/balance";
-import { PnlRow } from "../types/pnl";
+import {
+  COL_FIRST,
+  COL_FIRST_YEAR,
+  COL_YEAR,
+  head,
+  cell,
+  left,
+} from "@/components/layout/tableLayout";
 
-/* ---------------------- SHARED LAYOUT CONSTANTS ---------------------- */
+import {
+  getLocale,
+  fmtFactory,
+  fmtNormal,
+  fmtCost,
+} from "@/components/layout/formatters";
 
-const COL_FIRST: CSSProperties = { width: "180px" };
-const COL_FIRST_YEAR: CSSProperties = { width: "80px" };
-const COL_YEAR: CSSProperties = { width: "110px" };
+/* ---------------------- TYPES ---------------------- */
 
-const head: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  background: "#f3f3f3",
-  textAlign: "center",
+export type BalanceSheetRow = {
+  year: number;
+  fixedAssets: number;
+  wcInventory: number;
+  wcReceivables: number;
+  wcOtherCurrentAssets: number;
+  wcPayables: number;
+  wcOtherCurrentLiabilities: number;
+  workingCapital: number;
+  cash: number;
+  equity: number;
+  longDebt: number;
+  shortDebt: number;
 };
 
-const cell: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  textAlign: "right",
-  verticalAlign: "middle",
-};
-
-const left: CSSProperties = {
-  ...cell,
-  textAlign: "left",
-};
-
-/* ----------------------- Locale Formatting ----------------------- */
-
-const getLocale = () =>
-  typeof navigator !== "undefined" ? navigator.language : "en-US";
-
-const fmtFactory = (locale: string) => (v: number) =>
-  (v ?? 0).toLocaleString(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
-  
-
-/* ----------------------- Component ----------------------- */
+/* ---------------------- COMPONENT ---------------------- */
 
 export default function BalanceSheetTable({
   rows,
-  computedRows,
   years,
-  pnl,
-  ratios,
 }: {
-  rows: BalanceRow[];
-  computedRows: ComputedRow[];
+  rows: BalanceSheetRow[];
   years: number[];
-  pnl: PnlRow[];
-  ratios: RatioRow[];
 }) {
-  const locale = getLocale();
-  const fmt = fmtFactory(locale);
+  const fmt = fmtFactory(getLocale());
 
-/* ------------------------- FORMATTERS ------------------------- */
-
-// Standard (normal) items:
-// + positive: 12,500
-// - negative: (12,500)
-const fmtNormal = (v: number, decimals = 0) => {
-  const n = v ?? 0;
-
-  const formatted = Math.abs(n).toLocaleString(locale, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
-  return n < 0 ? `(${formatted})` : formatted;
-};
-
-// Cost items:
-// + positive → (12,500)
-// - negative → 12,500 (no minus, no parentheses)
-const fmtCost = (v: number, decimals = 0) => {
-  const n = v ?? 0;
-
-  const formatted = Math.abs(n).toLocaleString(locale, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
-  if (n > 0) return `(${formatted})`;
-  if (n < 0) return formatted; // negative shown positive
-  return formatted; // zero
-};
-
-
+  const N = (v: number) => fmtNormal(v ?? 0, fmt);
+  const C = (v: number) => fmtCost(v ?? 0, fmt);
 
   return (
     <div style={{ marginBottom: 32 }}>
       <h3 style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>
-        Balance Sheet Output
+        Balance Sheet
       </h3>
 
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Balance Sheet Output</th>
-
+            <th style={{ ...head, ...COL_FIRST }}></th>
             {years.map((y, idx) => (
               <th
                 key={y}
@@ -120,145 +72,171 @@ const fmtCost = (v: number, decimals = 0) => {
         </thead>
 
         <tbody>
-          {/* FIXED ASSETS */}
+          {/* ---------- ASSETS ---------- */}
+
           <tr style={{ fontWeight: "bold" }}>
             <td style={left}>Fixed Assets</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.fixedAssets)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.fixedAssets)}
               </td>
             ))}
           </tr>
 
-          {/* INVENTORY */}
           <tr>
             <td style={left}>Inventory</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.wcInventory)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.wcInventory)}
               </td>
             ))}
           </tr>
 
-          {/* RECEIVABLES */}
           <tr>
             <td style={left}>Receivables</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmt(r.wcReceivables)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.wcReceivables)}
               </td>
             ))}
           </tr>
 
-          {/* OTHER ASSETS */}
           <tr>
-            <td style={left}>Other Assets</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.wcOtherCurrentAssets)}
+            <td style={left}>Other Current Assets</td>
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.wcOtherCurrentAssets)}
               </td>
             ))}
           </tr>
 
-          {/* PAYABLES */}
           <tr>
             <td style={left}>Payables</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtCost(r.wcPayables)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {C(r.wcPayables)}
               </td>
             ))}
           </tr>
 
-          {/* OTHER LIABILITIES */}
           <tr>
-            <td style={left}>Other Liabilities</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtCost(r.wcOtherCurrentLiabilities)}
+            <td style={left}>Other Current Liabilities</td>
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {C(r.wcOtherCurrentLiabilities)}
               </td>
             ))}
           </tr>
 
-          {/* WORKING CAPITAL */}
           <tr style={{ fontWeight: "bold" }}>
             <td style={left}>Working Capital</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.workingCapital)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.workingCapital)}
               </td>
             ))}
           </tr>
 
-          {/* CASH */}
           <tr style={{ fontWeight: "bold" }}>
             <td style={left}>Cash (Balancing)</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.cash)}
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.cash)}
               </td>
             ))}
           </tr>
 
-          {/* TOTAL ASSETS */}
           <tr style={{ fontWeight: "bold", background: "#e8e8e8" }}>
             <td style={left}>Total Assets</td>
-            {computedRows.map((r, idx) => {
-              const total = r.fixedAssets + r.workingCapital + r.cash;
+            {rows.map((r, idx) => {
+              const total =
+                r.fixedAssets + r.workingCapital + r.cash;
+
               return (
-                <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                  {fmtNormal(total)}
+                <td
+                  key={r.year}
+                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+                >
+                  {N(total)}
                 </td>
               );
             })}
           </tr>
 
-          {/* EQUITY */}
+          {/* ---------- LIABILITIES ---------- */}
+
           <tr>
             <td style={left}>Equity</td>
-            {computedRows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.equity)}
-              </td>
-            ))}
-          </tr>
-
-          {/* LONG / SHORT DEBT */}
-          <tr>
-            <td style={left}>Long Term Debt</td>
             {rows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.longDebt)}
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.equity)}
               </td>
             ))}
           </tr>
 
           <tr>
-            <td style={left}>Short Term Debt</td>
+            <td style={left}>Long-term Debt</td>
             {rows.map((r, idx) => (
-              <td key={r.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
-                {fmtNormal(r.shortDebt)}
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.longDebt)}
               </td>
             ))}
           </tr>
 
-          {/* TOTAL LIABILITIES */}
+          <tr>
+            <td style={left}>Short-term Debt</td>
+            {rows.map((r, idx) => (
+              <td
+                key={r.year}
+                style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+              >
+                {N(r.shortDebt)}
+              </td>
+            ))}
+          </tr>
+
           <tr style={{ fontWeight: "bold", background: "#e8e8e8" }}>
             <td style={left}>Total Liabilities</td>
-            {computedRows.map((r, idx) => {
-              const debt =
-                (rows[idx].longDebt ?? 0) + (rows[idx].shortDebt ?? 0);
+            {rows.map((r, idx) => {
+              const total =
+                r.equity + r.longDebt + r.shortDebt;
 
               return (
                 <td
                   key={r.year}
-                  style={{
-                    ...cell,
-                    fontWeight: "bold",
-                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
-                  }}
+                  style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
                 >
-                  {fmtNormal(debt + r.equity)}
+                  {N(total)}
                 </td>
               );
             })}

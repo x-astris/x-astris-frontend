@@ -3,10 +3,9 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api/client";
+import FinancialStatementsInput from "@/components/financialstatements/FinancialStatementsInput";
 
-import CashflowInput from "@/components/cashflow/CashflowInput";
-
-export default function CashflowPage() {
+export default function FinancialStatementsPage() {
   const params = useParams();
   const id = params.id as string;
 
@@ -26,7 +25,7 @@ export default function CashflowPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <CashflowInput
+      <FinancialStatementsInput
         projectId={id}
         startYear={project.startYear}
         forecastYears={project.forecastYears}

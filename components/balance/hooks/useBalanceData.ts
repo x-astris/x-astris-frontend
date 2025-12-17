@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api/client";
 import { BalanceRow, RatioRow } from "../types/balance";
-import { PnlRow } from "../types/pnl";
+import { PnlRow } from "../../pnl/types/pnl";
 
 export const ratioFieldMap = {
   dio: "ratioDio",

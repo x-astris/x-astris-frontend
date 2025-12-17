@@ -3,30 +3,25 @@
 import type { CSSProperties } from "react";
 import { BalanceRow, ComputedRow } from "../types/balance";
 
-/* ------------------------------- STYLES ------------------------------- */
+/* ---------------------- SHARED LAYOUT ---------------------- */
 
-const COL_FIRST: CSSProperties = { width: "180px" };
-const COL_FIRST_YEAR: CSSProperties = { width: "80px" };
-const COL_YEAR: CSSProperties = { width: "110px" };
+import {
+  COL_FIRST,
+  COL_FIRST_YEAR,
+  COL_YEAR,
+  head,
+  cell,
+  left,
+} from "@/components/layout/tableLayout";
 
-const head: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  background: "#f3f3f3",
-  textAlign: "center",
-};
+/* ---------------------- FORMATTERS ---------------------- */
 
-const cell: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  textAlign: "right",
-  verticalAlign: "middle",
-};
+import {
+  getLocale,
+  fmtFactory,
+} from "@/components/layout/formatters";
 
-const left: CSSProperties = {
-  ...cell,
-  textAlign: "left",
-};
+/* ---------------------- INPUT STYLES (LOCAL) ---------------------- */
 
 const inputMoney: CSSProperties = {
   width: "100%",
@@ -46,15 +41,11 @@ const inputPct: CSSProperties = {
   borderRadius: 4,
 };
 
-/* ----------------------------- FORMATTERS ----------------------------- */
-
-/** Use browser locale automatically */
-const getLocale = () =>
-  typeof navigator !== "undefined" ? navigator.language : "en-US";
+/* ---------------------- HELPERS ---------------------- */
 
 const round1 = (v: number) => Math.round((v ?? 0) * 10) / 10;
 
-/* --------------------------------------------------------------------- */
+/* ---------------------- COMPONENT ---------------------- */
 
 export default function InvestmentsTable({
   rows,
@@ -67,20 +58,7 @@ export default function InvestmentsTable({
   years: number[];
   updateRow: (year: number, field: keyof BalanceRow, value: number) => void;
 }) {
-  const locale = getLocale();
-
-  /** formatted numbers for display cells */
-  const fmt = (v: number) =>
-    (v ?? 0).toLocaleString(locale, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-
-  const fmtPct = (v: number) =>
-    (v ?? 0).toLocaleString(locale, {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
+  const fmt = fmtFactory(getLocale());
 
   const safeRows = rows ?? [];
   const safeComputed = computedRows ?? [];
@@ -88,14 +66,13 @@ export default function InvestmentsTable({
   return (
     <div style={{ marginBottom: 32 }}>
       <h3 style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>
-        Investments in Fixed Assets & Depreciation
+        Investments in Fixed Assets &amp; Depreciation
       </h3>
 
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th style={{ ...head, ...COL_FIRST }}>Investments</th>
-
             {years.map((y, idx) => (
               <th
                 key={y}
@@ -114,12 +91,17 @@ export default function InvestmentsTable({
           {/* ---------------- FIXED ASSETS ---------------- */}
           <tr>
             <td style={left}>Fixed Assets</td>
-
             {years.map((year, idx) => {
               const fa = safeComputed[idx]?.fixedAssets ?? 0;
 
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {idx === 0 ? (
                     <input
                       type="number"
@@ -145,13 +127,17 @@ export default function InvestmentsTable({
           {/* ---------------- INVESTMENTS ---------------- */}
           <tr>
             <td style={left}>Investments</td>
-
             {years.map((year, idx) => {
-              const row = safeRows[idx];
-              const val = row?.investments ?? 0;
+              const val = safeRows[idx]?.investments ?? 0;
 
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {idx === 0 ? (
                     "N/A"
                   ) : (
@@ -173,12 +159,17 @@ export default function InvestmentsTable({
           {/* ---------------- DEPRECIATION % ---------------- */}
           <tr>
             <td style={left}>Depreciation %</td>
-
             {years.map((year, idx) => {
               const row = safeRows[idx];
 
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {idx === 0 ? (
                     "N/A"
                   ) : (
@@ -204,10 +195,19 @@ export default function InvestmentsTable({
           {/* ---------------- DEPRECIATION (CALC) ---------------- */}
           <tr>
             <td style={left}>Depreciation</td>
-
             {years.map((year, idx) => {
               const dep = safeComputed[idx]?.depreciation ?? 0;
-              return <td key={year} style={cell}>{fmt(dep)}</td>;
+              return (
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
+                  {fmt(dep)}
+                </td>
+              );
             })}
           </tr>
         </tbody>

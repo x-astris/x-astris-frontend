@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { PnlRow } from "../types/pnl";
-import { RatioRow } from "../types/balance";
+import type { PnlModelRow } from "@/components/pnl/hooks/usePnlModel";
+
+/* ---------------------- TYPES ---------------------- */
 
 type WcInputRow = {
   year: number;
@@ -22,66 +23,79 @@ type RatioInput = {
   otherCurrentLiabilitiesPct: number;
 };
 
+/* ---------------------- HOOK ---------------------- */
+
 export function useWorkingCapital(
   rows: WcInputRow[],
-  pnl: PnlRow[],
+  pnl: PnlModelRow[],
   ratios: RatioInput[],
   years: number[]
 ) {
   return useMemo(() => {
-    // 💥 FIX: if data not ready yet → don't compute anything
-    if (
-      !rows ||
-      !pnl ||
-      !ratios ||
-      rows.length === 0 ||
-      pnl.length === 0 ||
-      ratios.length === 0
-    ) {
-      return [];
-    }
-
     return years.map((year, idx) => {
-      // If index missing → prevent crashes
-      const row = rows[idx] ?? {
-        inventory: 0,
-        receivables: 0,
-        otherCurrentAssets: 0,
-        payables: 0,
-        otherCurrentLiabilities: 0,
-      };
+      /* ---------------- SAFE INPUT ROW ---------------- */
 
-      const r = ratios[idx] ?? {
-        dio: 0,
-        dso: 0,
-        dpo: 0,
-        otherCurrentAssetsPct: 0,
-        otherCurrentLiabilitiesPct: 0,
-      };
+      const row =
+        rows.find((r) => r.year === year) ?? {
+          inventory: 0,
+          receivables: 0,
+          otherCurrentAssets: 0,
+          payables: 0,
+          otherCurrentLiabilities: 0,
+        };
 
-      const revenue = pnl[idx]?.revenue ?? 0;
-      const costBase = (pnl[idx]?.cogs ?? 0) + (pnl[idx]?.opex ?? 0);
+      /* ---------------- SAFE RATIO ---------------- */
+
+      const ratio =
+        ratios.find((r) => r.year === year) ?? {
+          dio: 0,
+          dso: 0,
+          dpo: 0,
+          otherCurrentAssetsPct: 0,
+          otherCurrentLiabilitiesPct: 0,
+        };
+
+      /* ---------------- SAFE PNL ---------------- */
+
+      const pnlYear = pnl.find((p) => p.year === year);
+      const revenue = pnlYear?.revenue ?? 0;
+      const cogs = pnlYear?.cogs ?? 0;
+
+      /* ---------------- WC COMPONENTS ---------------- */
 
       const inventory =
-        idx === 0 ? row.inventory : Math.round((r.dio / 365) * revenue);
+        idx === 0
+          ? row.inventory
+          : Math.round((ratio.dio / 365) * cogs);
 
       const receivables =
-        idx === 0 ? row.receivables : Math.round((r.dso / 365) * revenue);
+        idx === 0
+          ? row.receivables
+          : Math.round((ratio.dso / 365) * revenue);
 
       const otherCurrentAssets =
         idx === 0
           ? row.otherCurrentAssets
-          : Math.round((r.otherCurrentAssetsPct / 100) * revenue);
+          : Math.round((ratio.otherCurrentAssetsPct / 100) * revenue);
 
       const payables =
         idx === 0
           ? row.payables
-          : Math.round((r.dpo / 365) * costBase);
+          : Math.round((ratio.dpo / 365) * cogs);
 
       const otherCurrentLiabilities =
         idx === 0
           ? row.otherCurrentLiabilities
-          : Math.round((r.otherCurrentLiabilitiesPct / 100) * revenue);
+          : Math.round(
+              (ratio.otherCurrentLiabilitiesPct / 100) * revenue
+            );
+
+      const workingCapital =
+        inventory +
+        receivables +
+        otherCurrentAssets -
+        payables -
+        otherCurrentLiabilities;
 
       return {
         year,
@@ -90,12 +104,7 @@ export function useWorkingCapital(
         otherCurrentAssets,
         payables,
         otherCurrentLiabilities,
-        wc:
-          inventory +
-          receivables +
-          otherCurrentAssets -
-          payables -
-          otherCurrentLiabilities,
+        wc: workingCapital,
       };
     });
   }, [rows, pnl, ratios, years]);

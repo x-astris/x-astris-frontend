@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useBalanceData } from "@/components/balance/hooks/useBalanceData";
-import { useComputedPnl } from "@/components/balance/hooks/useComputedPnl";
+import { usePnlModel } from "@/components/pnl/hooks/usePnlModel";
 import { useComputedBalance } from "@/components/balance/hooks/useComputedBalance";
 
 export type DashboardSeries = {
@@ -38,7 +38,7 @@ export function useDashboardData(
   /* -----------------------------------------------------
      COMPUTED P&L + BALANCE
   ----------------------------------------------------- */
-  const pnlComputed = useComputedPnl(pnl, years);
+  const pnlComputed = usePnlModel(pnl, years);
   const balanceComputed = useComputedBalance(rows, pnlComputed, years, ratios);
 
   /* -----------------------------------------------------
@@ -97,9 +97,9 @@ const data: DashboardSeries = useMemo(() => {
     icr: years.map((year) => {
       const p = pnlComputed.find((x) => x.year === year);
       if (!p) return 0;
-      const interest = p.interest ?? 0;
+      const interest = p.int ?? 0;
       if (interest === 0) return 0;
-      return p.ebit / interest;
+      return p.EBIT/ interest;
     }),
 
     // EBITDA / Total Debt
@@ -111,7 +111,7 @@ const data: DashboardSeries = useMemo(() => {
       const totalDebt = (b.longDebt ?? 0) + (b.shortDebt ?? 0);
       if (totalDebt === 0) return 0;
 
-      return p.ebitda / totalDebt;
+      return p.EBITDA / totalDebt;
     }),
 
     // Net Debt / EBITDA
@@ -119,12 +119,12 @@ const data: DashboardSeries = useMemo(() => {
       const p = pnlComputed.find((x) => x.year === year);
       const b = balanceComputed.find((x) => x.year === year);
 
-      if (!p || !b || !p.ebitda) return 0;
+      if (!p || !b || !p.EBITDA) return 0;
 
       const totalDebt = (b.longDebt ?? 0) + (b.shortDebt ?? 0);
       const netDebt = totalDebt - (b.cash ?? 0);
 
-      return netDebt / p.ebitda;
+      return netDebt / p.EBITDA;
     }),
 
     // Debt / Equity

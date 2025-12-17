@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useBalanceData } from "./hooks/useBalanceData";
 import { useComputedBalance } from "./hooks/useComputedBalance";
-import { useComputedPnl } from "./hooks/useComputedPnl";
+import { usePnlModel } from "../pnl/hooks/usePnlModel";
 
 import InvestmentsTable from "./ui/InvestmentsTable";
 import WorkingCapitalTable from "./ui/WorkingCapitalTable";
 import BalanceSheetTable from "./ui/BalanceSheetTable";
 import FinancingTable from "./ui/FinancingTable";
-import SaveButton from "./ui/SaveButton";
+import SaveButton from "../layout/SaveButton";
 import TopTabs from "../layout/TopTabs";
 import { useWorkingCapital } from "./hooks/useWorkingCapital";
 
@@ -22,6 +22,14 @@ export default function BalanceInput({
   startYear: number;
   forecastYears: number;
 }) {
+
+   /* -----------------------------------------------------
+      WARNING MESSAGE
+  ----------------------------------------------------- */ 
+  
+
+ const [showWarning, setShowWarning] = useState(true);
+
   /* -----------------------------------------------------
       YEARS ARRAY
   ----------------------------------------------------- */
@@ -50,7 +58,7 @@ export default function BalanceInput({
   /* -----------------------------------------------------
       COMPUTED DATA
   ----------------------------------------------------- */
-  const pnlComputed = useComputedPnl(pnl, years);
+  const pnlComputed = usePnlModel(pnl, years);
   const computedRows = useComputedBalance(rows, pnlComputed, years, ratios);
 
   /* -----------------------------------------------------
@@ -92,6 +100,16 @@ const ratiosForWC = ratios.map((ra) => ({
   ----------------------------------------------------- */
   console.log("🔥 DEBUG — pnlComputed:", JSON.stringify(pnlComputed, null, 2));
 
+    /* -----------------------------------------------------
+      HIDE WARNING
+  ----------------------------------------------------- */
+  
+    useEffect(() => {
+  if (saved) {
+    setShowWarning(false);
+  }
+}, [saved]);
+
   /* -----------------------------------------------------
       RENDER
   ----------------------------------------------------- */
@@ -113,6 +131,22 @@ const ratiosForWC = ratios.map((ra) => ({
           saved={saved}
           error={error}
         />
+      
+       {showWarning && (
+    <div
+      style={{
+        padding: "8px 12px",
+        background: "#fff3cd",
+        borderBottom: "1px solid #ffeeba",
+        color: "#856404",
+        fontSize: 14,
+        textAlign: "center",
+      }}
+    >
+      ⚠️ Please click <strong>Save</strong> before navigating away — otherwise your input will be lost.
+    </div>
+  )}
+      
       </div>
 
       <div style={{ padding: 24 }}>
@@ -140,17 +174,18 @@ const ratiosForWC = ratios.map((ra) => ({
         <FinancingTable
           rows={rows}
           computedRows={computedRows}
-          pnl={pnlComputed}
+          pnlModel={pnlComputed}
           years={years}
           updateRow={updateRow}
         />
 
+        <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+          Balance Sheet Output
+        </h1>
+
         <BalanceSheetTable
-          rows={rows}
-          computedRows={computedRows}
-          years={years}
-          pnl={pnl}
-          ratios={ratios}
+            rows={computedRows}
+            years={years}
         />
 
         <SaveButton

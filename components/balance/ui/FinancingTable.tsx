@@ -2,32 +2,24 @@
 
 import type { CSSProperties } from "react";
 import type { BalanceRow, ComputedRow } from "../types/balance";
-import type { PnlRow } from "../types/pnl";
+import type { PnlModelRow } from "@/components/pnl/hooks/usePnlModel";
 
-/* ------------------------------- STYLES ------------------------------- */
+/* ---------------------- SHARED LAYOUT ---------------------- */
 
-const COL_FIRST: CSSProperties = { width: "180px" };
-const COL_FIRST_YEAR: CSSProperties = { width: "80px" };
-const COL_YEAR: CSSProperties = { width: "110px" };
+import {
+  COL_FIRST,
+  COL_FIRST_YEAR,
+  COL_YEAR,
+  head,
+  cell,
+  left,
+} from "@/components/layout/tableLayout";
 
-const head: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  background: "#f3f3f3",
-  textAlign: "center",
-};
+/* ---------------------- FORMATTERS ---------------------- */
 
-const cell: CSSProperties = {
-  padding: 8,
-  border: "1px solid #ccc",
-  textAlign: "right",
-  verticalAlign: "middle",
-};
+import { getLocale, fmtFactory } from "@/components/layout/formatters";
 
-const left: CSSProperties = {
-  ...cell,
-  textAlign: "left",
-};
+/* ---------------------- INPUT STYLES ---------------------- */
 
 const inputMoney: CSSProperties = {
   width: "100%",
@@ -47,14 +39,9 @@ const inputPct: CSSProperties = {
   borderRadius: 4,
 };
 
-/* ------------------------ Locale Formatting ------------------------ */
+/* ---------------------- HELPERS ---------------------- */
 
-const getLocale = () =>
-  typeof navigator !== "undefined" ? navigator.language : "en-US";
-
-const round1 = (v: number) => Math.round((v ?? 0) * 10) / 10;
-
-/* ---------------------------- Interest Calc --------------------------- */
+const round1 = (v: number) => Math.round(v * 10) / 10;
 
 const calcInterest = (
   prevTotalDebt: number,
@@ -65,38 +52,26 @@ const calcInterest = (
   return Math.round(avgDebt * (interestRatePct / 100));
 };
 
-/* --------------------------------------------------------------------------- */
+/* ---------------------- COMPONENT ---------------------- */
 
 export default function FinancingTable({
   rows,
   computedRows,
-  pnl,
+  pnlModel,
   years,
   updateRow,
 }: {
   rows: BalanceRow[];
   computedRows: ComputedRow[];
-  pnl: PnlRow[];
+  pnlModel: PnlModelRow[];
   years: number[];
   updateRow: (year: number, field: keyof BalanceRow, value: number) => void;
 }) {
-  const locale = getLocale();
-
-  const fmt = (v: number) =>
-    (v ?? 0).toLocaleString(locale, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-
-  const fmtPct = (v: number) =>
-    (v ?? 0).toLocaleString(locale, {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
+  const fmt = fmtFactory(getLocale());
 
   const safeRows = rows ?? [];
   const safeComputed = computedRows ?? [];
-  const safePnl = pnl ?? [];
+  const safePnl = pnlModel ?? [];
 
   const totalDebt = safeRows.map(
     (r) => (r.longDebt ?? 0) + (r.shortDebt ?? 0)
@@ -118,7 +93,10 @@ export default function FinancingTable({
             {years.map((y, idx) => (
               <th
                 key={y}
-                style={{ ...head, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+                style={{
+                  ...head,
+                  ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                }}
               >
                 {y}
               </th>
@@ -131,11 +109,17 @@ export default function FinancingTable({
           <tr>
             <td style={left}>Equity</td>
             {years.map((year, idx) => {
-              const compRow = safeComputed.find((c) => c.year === year);
-              const equity = compRow?.equity ?? 0;
+              const equity =
+                safeComputed.find((c) => c.year === year)?.equity ?? 0;
 
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {idx === 0 ? (
                     <input
                       type="number"
@@ -156,23 +140,35 @@ export default function FinancingTable({
             })}
           </tr>
 
-          {/* NET RESULT ROW */}
+          {/* ---------------- NET RESULT ---------------- */}
           <tr>
-            <td style={left}>Net Result (P&L)</td>
-            {years.map((year) => (
-              <td key={year} style={cell}>
+            <td style={left}>Net Result (P&amp;L)</td>
+            {years.map((year, idx) => (
+              <td
+                key={year}
+                style={{
+                  ...cell,
+                  ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                }}
+              >
                 {fmt(getNetResult(year))}
               </td>
             ))}
           </tr>
 
-          {/* LONG TERM DEBT */}
+          {/* ---------------- LONG TERM DEBT ---------------- */}
           <tr>
             <td style={left}>Long-term Debt</td>
-            {years.map((year) => {
+            {years.map((year, idx) => {
               const row = safeRows.find((r) => r.year === year);
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   <input
                     type="number"
                     value={row?.longDebt ?? 0}
@@ -187,13 +183,19 @@ export default function FinancingTable({
             })}
           </tr>
 
-          {/* SHORT TERM DEBT */}
+          {/* ---------------- SHORT TERM DEBT ---------------- */}
           <tr>
             <td style={left}>Short-term Debt</td>
-            {years.map((year) => {
+            {years.map((year, idx) => {
               const row = safeRows.find((r) => r.year === year);
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   <input
                     type="number"
                     value={row?.shortDebt ?? 0}
@@ -208,13 +210,19 @@ export default function FinancingTable({
             })}
           </tr>
 
-          {/* INTEREST RATE */}
+          {/* ---------------- INTEREST RATE ---------------- */}
           <tr>
             <td style={left}>Interest Rate (%)</td>
             {years.map((year, idx) => {
               const row = safeRows.find((r) => r.year === year);
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {idx === 0 ? (
                     "N/A"
                   ) : (
@@ -237,28 +245,39 @@ export default function FinancingTable({
             })}
           </tr>
 
-          {/* INTEREST */}
+          {/* ---------------- INTEREST ---------------- */}
           <tr>
             <td style={left}>Interest</td>
             {years.map((year, idx) => {
               if (idx === 0) {
                 const compRow = safeComputed.find((c) => c.year === year);
                 return (
-                  <td key={year} style={cell}>
+                  <td
+                    key={year}
+                    style={{
+                      ...cell,
+                      ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                    }}
+                  >
                     {fmt(compRow?.interest ?? 0)}
                   </td>
                 );
               }
 
-              const prevDebt = totalDebt[idx - 1];
-              const currDebt = totalDebt[idx];
-              const rate =
-                safeRows.find((r) => r.year === year)?.interestRatePct ?? 0;
-
-              const interest = calcInterest(prevDebt, currDebt, rate);
+              const interest = calcInterest(
+                totalDebt[idx - 1],
+                totalDebt[idx],
+                safeRows.find((r) => r.year === year)?.interestRatePct ?? 0
+              );
 
               return (
-                <td key={year} style={cell}>
+                <td
+                  key={year}
+                  style={{
+                    ...cell,
+                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
+                  }}
+                >
                   {fmt(interest)}
                 </td>
               );
