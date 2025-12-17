@@ -105,7 +105,7 @@ export default function PrivacyPage() {
           </h2>
           <p>
             You may request access, correction, deletion, or export of your data by
-            emailing us at info@x-astris.com.
+            emailing us at support@x-astris.com.
           </p>
 
           <h2 style={{ fontSize: 20, fontWeight: 600, marginTop: 24 }}>
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
           <h2 style={{ fontSize: 20, fontWeight: 600, marginTop: 24 }}>
             11. Contact Us
           </h2>
-          <p>Email: info@x-astris.com</p>
+          <p>Email: support@x-astris.com</p>
         </div>
 
         {/* Back to Login Button */}

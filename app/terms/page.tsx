@@ -50,7 +50,7 @@ export default function TermsPage() {
             <br />
             VAT number: [TO BE COMPLETED]
             <br />
-            Contact: info@x-astris.com
+            Contact: support@x-astris.com
           </p>
 
           <h2 style={{ fontSize: 20, fontWeight: 600, marginTop: 24 }}>
