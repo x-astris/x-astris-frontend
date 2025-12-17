@@ -74,7 +74,7 @@ export function useComputedCashflow(
       const ebit = pnlRow?.EBIT ?? 0;
       const tax = pnlRow?.tax ?? 0;
       const dep = pnlRow?.dep ?? 0;
-      const interest = pnlRow?.int ?? 0;
+      const interest = pnlRow?.int ?? 0; // positive cost
 
       const noplat = ebit - tax;
       const ocf = noplat + dep - wcChange;
@@ -87,16 +87,17 @@ export function useComputedCashflow(
       const dShort =
         (bNow?.shortDebt ?? 0) - (bPrev?.shortDebt ?? 0);
 
+      const financingCashFlow =
+        -interest + dLong + dShort;
+
       /* ---------- NET CASH ---------- */
 
       const investments = bNow?.investments ?? 0;
 
       const netChange =
         ocf -
-        investments -
-        interest +
-        dLong +
-        dShort;
+        investments +
+        financingCashFlow;
 
       const cashCheck =
         (bNow?.cash ?? 0) - (bPrev?.cash ?? 0);
@@ -131,6 +132,7 @@ export function useComputedCashflow(
           interest,
           dLong,
           dShort,
+          financingCashFlow,
         },
 
         netChange,

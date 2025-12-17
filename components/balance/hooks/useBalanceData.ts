@@ -113,52 +113,34 @@ export function useBalanceData(projectId: string, years: number[]) {
   /* -----------------------------------------------------
       UPDATE BALANCE FIELDS
   ----------------------------------------------------- */
-  const updateRow = async (
-    year: number,
-    field: keyof BalanceRow,
-    value: number
-  ) => {
-    setRows((prev) =>
-      prev.map((r) => (r.year === year ? { ...r, [field]: value } : r))
-    );
-
-    try {
-      await api.patch("/balance/update", {
-        projectId,
-        year,
-        field,
-        value,
-      });
-    } catch (err) {
-      console.error("Error updating balance:", err);
-    }
-  };
+const updateRow = (
+  year: number,
+  field: keyof BalanceRow,
+  value: number
+) => {
+  setRows((prev) =>
+    prev.map((r) =>
+      r.year === year ? { ...r, [field]: value } : r
+    )
+  );
+};
 
   /* -----------------------------------------------------
       UPDATE RATIO FIELDS
   ----------------------------------------------------- */
-  const updateRatio = async (
-    year: number,
-    field: RatioFrontendField,
-    value: number
-  ) => {
-    setRatios((prev) =>
-      prev.map((r) =>
-        r.year === year ? { ...r, [field]: value, _userEdited: true } : r
-      )
-    );
-
-    try {
-      await api.patch("/balance/update-ratio", {
-        projectId,
-        year,
-        field: ratioFieldMap[field], // backend field name
-        value,
-      });
-    } catch (err) {
-      console.error("Error updating ratio:", err);
-    }
-  };
+const updateRatio = (
+  year: number,
+  field: RatioFrontendField,
+  value: number
+) => {
+  setRatios((prev) =>
+    prev.map((r) =>
+      r.year === year
+        ? { ...r, [field]: value, _userEdited: true }
+        : r
+    )
+  );
+};
 
   /* -----------------------------------------------------
       SAVE (Create all balance rows fresh)

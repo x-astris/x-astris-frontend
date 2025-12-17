@@ -11,7 +11,6 @@ import BalanceSheetTable from "./ui/BalanceSheetTable";
 import FinancingTable from "./ui/FinancingTable";
 import SaveButton from "../layout/SaveButton";
 import TopTabs from "../layout/TopTabs";
-import { useWorkingCapital } from "./hooks/useWorkingCapital";
 
 export default function BalanceInput({
   projectId,
@@ -22,16 +21,13 @@ export default function BalanceInput({
   startYear: number;
   forecastYears: number;
 }) {
-
-   /* -----------------------------------------------------
-      WARNING MESSAGE
-  ----------------------------------------------------- */ 
-  
-
- const [showWarning, setShowWarning] = useState(true);
+  /* -----------------------------------------------------
+     WARNING MESSAGE
+  ----------------------------------------------------- */
+  const [showWarning, setShowWarning] = useState(true);
 
   /* -----------------------------------------------------
-      YEARS ARRAY
+     YEARS ARRAY
   ----------------------------------------------------- */
   const years = useMemo(
     () => Array.from({ length: forecastYears }, (_, i) => startYear + i),
@@ -39,7 +35,7 @@ export default function BalanceInput({
   );
 
   /* -----------------------------------------------------
-      LOAD DATA
+     LOAD DATA
   ----------------------------------------------------- */
   const {
     rows,
@@ -56,62 +52,29 @@ export default function BalanceInput({
   } = useBalanceData(projectId, years);
 
   /* -----------------------------------------------------
-      COMPUTED DATA
+     COMPUTED DATA
   ----------------------------------------------------- */
   const pnlComputed = usePnlModel(pnl, years);
   const computedRows = useComputedBalance(rows, pnlComputed, years, ratios);
 
   /* -----------------------------------------------------
-      WORKING CAPITAL (clean input types)
+     HIDE WARNING (⚠️ MUST BE BEFORE EARLY RETURN)
   ----------------------------------------------------- */
-
-  /** WC row type for TS */
-  type WcRow = {
-    year: number;
-    inventory: number;
-    receivables: number;
-    otherCurrentAssets: number;
-    payables: number;
-    otherCurrentLiabilities: number;
-  };
-
-  const rowsForWC: WcRow[] = rows.map((r) => ({
-    year: r.year,
-    inventory: r.inventory,
-    receivables: r.receivables,
-    otherCurrentAssets: r.otherCurrentAssets,
-    payables: r.payables,
-    otherCurrentLiabilities: r.otherCurrentLiabilities,
-  }));
-
-const ratiosForWC = ratios.map((ra) => ({
-  year: ra.year,
-  dio: ra.dio,
-  dso: ra.dso,
-  dpo: ra.dpo,
-  otherCurrentAssetsPct: ra.otherCurrentAssetsPct,
-  otherCurrentLiabilitiesPct: ra.otherCurrentLiabilitiesPct,
-}));
-
-  const wcComputed = useWorkingCapital(rowsForWC, pnlComputed, ratiosForWC, years);
+  useEffect(() => {
+    if (saved) {
+      setShowWarning(false);
+    }
+  }, [saved]);
 
   /* -----------------------------------------------------
-      DEBUG
+     LOADING GUARD (SAFE NOW)
   ----------------------------------------------------- */
-  console.log("🔥 DEBUG — pnlComputed:", JSON.stringify(pnlComputed, null, 2));
-
-    /* -----------------------------------------------------
-      HIDE WARNING
-  ----------------------------------------------------- */
-  
-    useEffect(() => {
-  if (saved) {
-    setShowWarning(false);
+  if (loading) {
+    return null;
   }
-}, [saved]);
 
   /* -----------------------------------------------------
-      RENDER
+     RENDER
   ----------------------------------------------------- */
   return (
     <>
@@ -131,22 +94,22 @@ const ratiosForWC = ratios.map((ra) => ({
           saved={saved}
           error={error}
         />
-      
-       {showWarning && (
-    <div
-      style={{
-        padding: "8px 12px",
-        background: "#fff3cd",
-        borderBottom: "1px solid #ffeeba",
-        color: "#856404",
-        fontSize: 14,
-        textAlign: "center",
-      }}
-    >
-      ⚠️ Please click <strong>Save</strong> before navigating away — otherwise your input will be lost.
-    </div>
-  )}
-      
+
+        {showWarning && (
+          <div
+            style={{
+              padding: "8px 12px",
+              background: "#fff3cd",
+              borderBottom: "1px solid #ffeeba",
+              color: "#856404",
+              fontSize: 14,
+              textAlign: "center",
+            }}
+          >
+            ⚠️ Please click <strong>Save</strong> before navigating away —
+            otherwise your input will be lost.
+          </div>
+        )}
       </div>
 
       <div style={{ padding: 24 }}>
@@ -168,7 +131,7 @@ const ratiosForWC = ratios.map((ra) => ({
           years={years}
           updateRow={updateRow}
           updateRatio={updateRatio}
-          setRatios={setRatios} 
+          setRatios={setRatios}
         />
 
         <FinancingTable
@@ -183,10 +146,7 @@ const ratiosForWC = ratios.map((ra) => ({
           Balance Sheet Output
         </h1>
 
-        <BalanceSheetTable
-            rows={computedRows}
-            years={years}
-        />
+        <BalanceSheetTable rows={computedRows} years={years} />
 
         <SaveButton
           saving={saving}

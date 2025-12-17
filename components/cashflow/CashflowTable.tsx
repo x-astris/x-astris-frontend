@@ -32,7 +32,7 @@ export default function CashflowTable({
     <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
       <thead>
         <tr>
-          <th style={{ ...head, ...COL_FIRST }}>Line</th>
+          <th style={{ ...head, ...COL_FIRST }}></th>
           {years.map((y, idx) => (
             <th
               key={y}
@@ -49,15 +49,6 @@ export default function CashflowTable({
 
       <tbody>
         {/* ================= OPERATING ================= */}
-        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-          <td style={left}>Operating Cash Flow</td>
-          {years.map((y, idx) => (
-            <td
-              key={y}
-              style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-            />
-          ))}
-        </tr>
 
         <tr>
           <td style={left}>EBIT</td>
@@ -77,7 +68,7 @@ export default function CashflowTable({
           ))}
         </tr>
 
-        <tr>
+        <tr style={{ fontWeight: "bold" }}>
           <td style={left}>NOPLAT</td>
           {cashflow.map((c, idx) => (
             <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
@@ -96,15 +87,6 @@ export default function CashflowTable({
         </tr>
 
         {/* ================= WORKING CAPITAL ================= */}
-        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-          <td style={left}>Working Capital Changes</td>
-          {years.map((y, idx) => (
-            <td
-              key={y}
-              style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-            />
-          ))}
-        </tr>
 
         <tr>
           <td style={left}>Δ Inventory</td>
@@ -151,7 +133,7 @@ export default function CashflowTable({
           ))}
         </tr>
 
-        <tr style={{ fontWeight: "bold", background: "#f7f7f7" }}>
+        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
           <td style={left}>Operating Cash Flow</td>
           {cashflow.map((c, idx) => (
             <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
@@ -161,16 +143,7 @@ export default function CashflowTable({
         </tr>
 
         {/* ================= INVESTING ================= */}
-        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-          <td style={left}>Investing Cash Flow</td>
-          {years.map((y, idx) => (
-            <td
-              key={y}
-              style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-            />
-          ))}
-        </tr>
-
+        
         <tr>
           <td style={left}>Investments</td>
           {cashflow.map((c, idx) => (
@@ -179,17 +152,19 @@ export default function CashflowTable({
             </td>
           ))}
         </tr>
+        
+          <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+          <td style={left}>Investing Cash Flow</td>
+          {cashflow.map((c, idx) => (
+            <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
+              {blankOr(idx, c.investing.investments, fmtPosToParens)}
+            </td>
+          ))}
+        </tr>     
+       
+       
 
         {/* ================= FINANCING ================= */}
-        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
-          <td style={left}>Financing Cash Flow</td>
-          {years.map((y, idx) => (
-            <td
-              key={y}
-              style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
-            />
-          ))}
-        </tr>
 
         <tr>
           <td style={left}>Interest</td>
@@ -214,6 +189,18 @@ export default function CashflowTable({
           {cashflow.map((c, idx) => (
             <td key={c.year} style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}>
               {blankOr(idx, c.financing.dShort, fmtNegToParens)}
+            </td>
+          ))}
+        </tr>
+
+        <tr style={{ background: "#e8e8e8", fontWeight: "bold" }}>
+          <td style={left}>Financing Cash Flow</td>
+          {cashflow.map((c, idx) => (
+            <td
+              key={c.year}
+              style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+            >
+              {blankOr(idx, c.financing.financingCashFlow, fmtNegToParens)}
             </td>
           ))}
         </tr>
