@@ -8,6 +8,7 @@ import { usePnlModel } from "../pnl/hooks/usePnlModel";
 import InvestmentsTable from "./ui/InvestmentsTable";
 import WorkingCapitalTable from "./ui/WorkingCapitalTable";
 import BalanceSheetTable from "./ui/BalanceSheetTable";
+import EquityTable from "./ui/EquityTable";
 import FinancingTable from "./ui/FinancingTable";
 import SaveButton from "../layout/SaveButton";
 import TopTabs from "../layout/TopTabs";
@@ -132,6 +133,14 @@ export default function BalanceInput({
           updateRow={updateRow}
           updateRatio={updateRatio}
           setRatios={setRatios}
+        />
+
+        <EquityTable
+          rows={rows}
+          computedRows={computedRows}
+          pnlModel={pnlComputed}
+          years={years}
+          updateRow={updateRow}
         />
 
         <FinancingTable

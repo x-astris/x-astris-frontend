@@ -35,6 +35,8 @@
       EQUITY & DEBT INPUTS
    -------------------------------- */
    equityInput: number;  // Opening equity (year 1)
+   equityContribution: number;
+   dividend: number;
    longDebt: number;
    shortDebt: number;
 

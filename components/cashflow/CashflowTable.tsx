@@ -1,3 +1,5 @@
+//cashflow/CashflowTable.tsx
+
 "use client";
 
 import {
@@ -166,6 +168,30 @@ export default function CashflowTable({
 
         {/* ================= FINANCING ================= */}
 
+              <tr>
+        <td style={left}>Equity Contribution</td>
+        {cashflow.map((c, idx) => (
+          <td
+            key={c.year}
+            style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+          >
+            {blankOr(idx, c.financing.equityContribution, fmtNegToParens)}
+          </td>
+        ))}
+      </tr>
+
+      <tr>
+        <td style={left}>Dividend</td>
+        {cashflow.map((c, idx) => (
+          <td
+            key={c.year}
+            style={{ ...cell, ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR) }}
+          >
+            {blankOr(idx, c.financing.dividend, fmtPosToParens)}
+          </td>
+        ))}
+      </tr>
+        
         <tr>
           <td style={left}>Interest</td>
           {cashflow.map((c, idx) => (

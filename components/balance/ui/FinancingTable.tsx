@@ -83,13 +83,13 @@ export default function FinancingTable({
   return (
     <div style={{ marginBottom: 32 }}>
       <h3 style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>
-        Financing Inputs
+        Debt Financing Input
       </h3>
 
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ ...head, ...COL_FIRST }}>Financing item</th>
+            <th style={{ ...head, ...COL_FIRST }}></th>
             {years.map((y, idx) => (
               <th
                 key={y}
@@ -105,57 +105,6 @@ export default function FinancingTable({
         </thead>
 
         <tbody>
-          {/* ---------------- EQUITY ---------------- */}
-          <tr>
-            <td style={left}>Equity</td>
-            {years.map((year, idx) => {
-              const equity =
-                safeComputed.find((c) => c.year === year)?.equity ?? 0;
-
-              return (
-                <td
-                  key={year}
-                  style={{
-                    ...cell,
-                    ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
-                  }}
-                >
-                  {idx === 0 ? (
-                    <input
-                      type="number"
-                      value={
-                        safeRows.find((r) => r.year === year)?.equityInput ?? 0
-                      }
-                      onChange={(e) =>
-                        updateRow(year, "equityInput", Number(e.target.value))
-                      }
-                      step={100}
-                      style={inputMoney}
-                    />
-                  ) : (
-                    fmt(equity)
-                  )}
-                </td>
-              );
-            })}
-          </tr>
-
-          {/* ---------------- NET RESULT ---------------- */}
-          <tr>
-            <td style={left}>Net Result (P&amp;L)</td>
-            {years.map((year, idx) => (
-              <td
-                key={year}
-                style={{
-                  ...cell,
-                  ...(idx === 0 ? COL_FIRST_YEAR : COL_YEAR),
-                }}
-              >
-                {fmt(getNetResult(year))}
-              </td>
-            ))}
-          </tr>
-
           {/* ---------------- LONG TERM DEBT ---------------- */}
           <tr>
             <td style={left}>Long-term Debt</td>
@@ -176,6 +125,7 @@ export default function FinancingTable({
                       updateRow(year, "longDebt", Number(e.target.value))
                     }
                     step={100}
+                    min={0}
                     style={inputMoney}
                   />
                 </td>
@@ -203,6 +153,7 @@ export default function FinancingTable({
                       updateRow(year, "shortDebt", Number(e.target.value))
                     }
                     step={100}
+                    min={0}
                     style={inputMoney}
                   />
                 </td>
@@ -226,19 +177,19 @@ export default function FinancingTable({
                   {idx === 0 ? (
                     "N/A"
                   ) : (
-                    <input
-                      type="number"
-                      value={row?.interestRatePct ?? 0}
-                      onChange={(e) =>
-                        updateRow(
-                          year,
-                          "interestRatePct",
-                          round1(Number(e.target.value))
-                        )
-                      }
-                      step={0.1}
-                      style={inputPct}
-                    />
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={row?.interestRatePct ?? 0}
+                    onChange={(e) => {
+                      const raw = Number(e.target.value);
+                      const clamped = Math.min(100, Math.max(0, raw));
+                      updateRow(year, "interestRatePct", round1(clamped));
+                    }}
+                    step={0.1}
+                    style={inputPct}
+                  />
                   )}
                 </td>
               );

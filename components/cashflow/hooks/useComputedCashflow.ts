@@ -1,3 +1,5 @@
+//cashflow/hooks/useComputedCashflow.ts
+
 "use client";
 
 import { useMemo } from "react";
@@ -14,6 +16,8 @@ type BalanceModelRow = {
   payables?: number;
   otherShortTermLiabilities?: number;
   investments?: number;
+  equityContribution?: number;
+  dividend?: number;
   longDebt?: number;
   shortDebt?: number;
   cash?: number;
@@ -87,8 +91,16 @@ export function useComputedCashflow(
       const dShort =
         (bNow?.shortDebt ?? 0) - (bPrev?.shortDebt ?? 0);
 
+      const equityContribution = bNow?.equityContribution ?? 0;
+      const dividend = bNow?.dividend ?? 0;
+
       const financingCashFlow =
-        -interest + dLong + dShort;
+        -interest +
+        dLong +
+        dShort +
+        equityContribution -
+        dividend;
+
 
       /* ---------- NET CASH ---------- */
 
@@ -132,6 +144,8 @@ export function useComputedCashflow(
           interest,
           dLong,
           dShort,
+          equityContribution,
+          dividend,
           financingCashFlow,
         },
 

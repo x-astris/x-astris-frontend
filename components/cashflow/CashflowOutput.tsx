@@ -1,3 +1,5 @@
+//cashflow/CashflowOutput.tsx
+
 "use client";
 
 import CashflowTable from "@/components/cashflow/CashflowTable";
@@ -29,11 +31,14 @@ export type CashflowRow = {
     investments: number;
   };
 
-  financing: {
-    interest: number;
-    dLong: number;
-    dShort: number;
-  };
+financing: {
+  interest: number;
+  dLong: number;
+  dShort: number;
+  equityContribution: number;
+  dividend: number;
+  financingCashFlow: number;
+};
 
   netChange: number;
   cashCheck: number;

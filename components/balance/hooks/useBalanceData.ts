@@ -68,6 +68,8 @@ export function useBalanceData(projectId: string, years: number[]) {
             otherCurrentLiabilities: b?.otherShortTermLiabilities ?? 0,
 
             equityInput: b?.equity ?? 0,
+            equityContribution: b?.equityContribution ?? 0,
+            dividend: b?.dividend ?? 0,
             longDebt: b?.longDebt ?? 0,
             shortDebt: b?.shortDebt ?? 0,
 
@@ -194,8 +196,8 @@ async function save(computedRows: any[]) {
     /* ----------------------------------------------
        STEP 2 — recreate all years fully
     ---------------------------------------------- */
-    for (const r of rows) {
-      const comp = computedRows.find(x => x.year === r.year) ?? {};
+    for (const r of computedRows) {
+      
       const ratio: RatioRow =
   ratios.find(x => x.year === r.year) ?? {
     year: r.year,
@@ -211,24 +213,26 @@ async function save(computedRows: any[]) {
         year: r.year,
 
         // Fixed assets
-        fixedAssets: comp.fixedAssets ?? r.fixedAssetsInput,
+        fixedAssets: r.fixedAssets ?? r.fixedAssetsInput,
         investments: r.investments,
         depreciationPct: r.depreciationPct,
         interestRatePct: r.interestRatePct,
 
         // Working Capital (computed)
-        inventory: comp.wcInventory,
-        receivables: comp.wcReceivables,
-        otherShortTermAssets: comp.wcOtherCurrentAssets,
-        payables: comp.wcPayables,
-        otherShortTermLiabilities: comp.wcOtherCurrentLiabilities,
+        inventory: r.wcInventory,
+        receivables: r.wcReceivables,
+        otherShortTermAssets: r.wcOtherCurrentAssets,
+        payables: r.wcPayables,
+        otherShortTermLiabilities: r.wcOtherCurrentLiabilities,
 
         // Equity & Debt
-        equity: comp.equity ?? r.equityInput,
+        equity: r.equity ?? r.equityInput,
+        equityContribution: r.equityContribution ?? 0,
+        dividend: r.dividend ?? 0,
         longDebt: r.longDebt,
         shortDebt: r.shortDebt,
 
-        cash: comp.cash ?? 0,
+        cash: r.cash ?? 0,
 
         // KPIs saved to backend
         ratioDio: ratio.dio ?? 0,
@@ -278,6 +282,8 @@ const pnlData: any[] = refreshedPnl.data ?? [];
         otherCurrentLiabilities: b?.otherShortTermLiabilities ?? 0,
 
         equityInput: b?.equity ?? 0,
+        equityContribution: b?.equityContribution ?? 0,
+        dividend: b?.dividend ?? 0,
         longDebt: b?.longDebt ?? 0,
         shortDebt: b?.shortDebt ?? 0,
 

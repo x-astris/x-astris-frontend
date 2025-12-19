@@ -175,14 +175,18 @@ export default function InvestmentsTable({
                   ) : (
                     <input
                       type="number"
+                      min={0}
+                      max={100}
                       value={row?.depreciationPct ?? 0}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const raw = Number(e.target.value);
+                        const clamped = Math.min(100, Math.max(0, raw));
                         updateRow(
                           year,
                           "depreciationPct",
-                          round1(Number(e.target.value))
-                        )
-                      }
+                          round1(clamped)
+                        );
+                      }}
                       step={0.1}
                       style={inputPct}
                     />

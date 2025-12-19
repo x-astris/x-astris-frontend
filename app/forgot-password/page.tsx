@@ -13,10 +13,10 @@ export default function ForgotPasswordPage() {
         <h1>Financial modelling for value-driven decisions</h1>
 
         <ul>
-          <li>Cash flow modelling - Fast and easy</li>
-          <li>Simple driver-based interface</li>
-          <li>Choose up to 10 forecast years</li>
-          <li>Only 1 base year is required to start modelling</li>
+    <li>See how your strategy turns into cash flow</li>
+    <li>Focus on the few business drivers that truly matter</li>
+    <li>Understand short- and long-term impact in one model</li>
+    <li>Start modelling immediately with minimal assumptions</li>
         </ul>
       </aside>
 

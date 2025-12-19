@@ -46,10 +46,13 @@ export function useComputedBalance(
 
       /* ---------------- EQUITY ROLL ---------------- */
 
+      const contribution = row.equityContribution ?? 0;
+      const dividend = row.dividend ?? 0;
+
       const equity =
         idx === 0
-          ? row.equityInput ?? 0
-          : prevEquity + netResult;
+          ? (row.equityInput ?? 0)   // year 0: opening equity only
+          : prevEquity + netResult + contribution - dividend;
 
       prevEquity = equity;
 
