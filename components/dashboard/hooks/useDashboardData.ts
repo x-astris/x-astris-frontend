@@ -1,3 +1,5 @@
+//dashboard/hooks/useDashboardData.ts
+
 "use client";
 
 import { useMemo } from "react";
@@ -12,9 +14,13 @@ export type DashboardSeries = {
   investments: number[];
   cash: number[];
   icr: number[];              // EBIT / Interest
-  ebitdaToDebt: number[];     // EBITDA / TotalDebt
+  debtToEbitda: number[];     
   netDebtToEbitda: number[];  // (Debt - Cash) / EBITDA
+  solvencyRatio: number[]; // equity / total assets
   debtToEquity: number[];     // TotalDebt / Equity
+  netResult: number[];
+  netWorkingCapital: number[];
+  netDebt: number[];
 };
 
 export function useDashboardData(
@@ -55,9 +61,16 @@ const data: DashboardSeries = useMemo(() => {
 
       // Financing KPIs
       icr: years.map(() => 0),
-      ebitdaToDebt: years.map(() => 0),
+      debtToEbitda: years.map(() => 0),
       netDebtToEbitda: years.map(() => 0),
       debtToEquity: years.map(() => 0),
+      solvencyRatio: years.map(() => 0),
+
+      // Other 
+      netResult: years.map(() => 0),
+      netWorkingCapital: years.map(() => 0),
+      netDebt:years.map(() => 0),
+
     };
   }
 
@@ -102,16 +115,15 @@ const data: DashboardSeries = useMemo(() => {
       return p.EBIT/ interest;
     }),
 
-    // EBITDA / Total Debt
-    ebitdaToDebt: years.map((year) => {
+    // Debt / EBITDA
+    debtToEbitda: years.map((year) => {
       const p = pnlComputed.find((x) => x.year === year);
       const b = balanceComputed.find((x) => x.year === year);
-      if (!p || !b) return 0;
+      if (!p || !b || !p.EBITDA) return 0;
 
       const totalDebt = (b.longDebt ?? 0) + (b.shortDebt ?? 0);
-      if (totalDebt === 0) return 0;
 
-      return p.EBITDA / totalDebt;
+      return totalDebt / p.EBITDA;
     }),
 
     // Net Debt / EBITDA
@@ -127,6 +139,14 @@ const data: DashboardSeries = useMemo(() => {
       return netDebt / p.EBITDA;
     }),
 
+    // Solvency Ratio = Equity / Total Assets
+      solvencyRatio: years.map((year) => {
+        const b = balanceComputed.find((x) => x.year === year);
+        if (!b || !b.totalAssets) return 0;
+
+        return b.equity / b.totalAssets;
+      }),
+
     // Debt / Equity
     debtToEquity: years.map((year) => {
       const b = balanceComputed.find((x) => x.year === year);
@@ -139,6 +159,33 @@ const data: DashboardSeries = useMemo(() => {
 
       return totalDebt / equity;
     }),
+
+    // Other charts
+
+    // Net Result
+    netResult: years.map((year) => {
+      const p = pnlComputed.find((x) => x.year === year);
+      return p?.netResult ?? 0;
+    }),
+
+    // Net Working Capital
+    netWorkingCapital: years.map((year) => {
+      const b = balanceComputed.find((x) => x.year === year);
+      return b?.workingCapital ?? 0;
+    }),
+
+    // Net Debt = Debt - Cash
+    netDebt: years.map((year) => {
+      const b = balanceComputed.find((x) => x.year === year);
+      if (!b) return 0;
+
+      const totalDebt =
+        (b.longDebt ?? 0) + (b.shortDebt ?? 0);
+
+      return totalDebt - (b.cash ?? 0);
+    }),
+
+
   };
 }, [years, pnlComputed, balanceComputed]);
 

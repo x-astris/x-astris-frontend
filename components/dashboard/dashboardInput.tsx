@@ -1,3 +1,5 @@
+//dashboard/dashboardInput.tsx
+
 "use client";
 
 import RevenueChart from "./ui/RevenueChart";
@@ -7,9 +9,13 @@ import CashChart from "./ui/CashChart";
 import { useDashboardData } from "./hooks/useDashboardData";
 import TopTabs from "../layout/TopTabs";
 import ICRChart from "./ui/ICRChart";
-import EbitdaToDebtChart from "./ui/EbitdaToDebtChart";
-import NetDebtToEbitdaChart from "./ui/NetDebtToEbitdaChart";
+import DebtToEbitdaChart from "./ui/DebtToEbitdaChart";
 import DebtToEquityChart from "./ui/DebtToEquityChart";
+import SolvencyRatioChart from "./ui/SolvencyRatioChart";
+import NetDebtChart from "./ui/NetDebtChart";
+import NetResultChart from "./ui/NetResultChart";
+import NetWorkingCapitalChart from "./ui/NetWorkingCapitalChart";
+
 
 type Props = {
   projectId: string;
@@ -29,7 +35,21 @@ export default function DashboardInput({ projectId, startYear, forecastYears, }:
     return <p style={{ padding: 24 }}>No dashboard data available.</p>;
   }
 
-  const { years, revenue, ebitda, investments, cash, icr, ebitdaToDebt, netDebtToEbitda, debtToEquity } = data;
+  const { 
+    years,
+    revenue, 
+    ebitda, 
+    investments, 
+    cash, 
+    icr,
+    solvencyRatio, 
+    debtToEbitda, 
+    netDebtToEbitda, 
+    debtToEquity,
+    netResult,
+    netWorkingCapital,
+    netDebt,
+   } = data;
 
   return (
     <>
@@ -101,7 +121,7 @@ export default function DashboardInput({ projectId, startYear, forecastYears, }:
         padding: 16,
       }}
     >
-      <h3 style={{ marginBottom: 8 }}>Investments</h3>
+      <h3 style={{ marginBottom: 8 }}>Investments (capex)</h3>
       <InvestmentsChart years={years} data={investments} />
     </div>
 
@@ -121,71 +141,136 @@ export default function DashboardInput({ projectId, startYear, forecastYears, }:
   {/* SPACE BETWEEN BLOCKS */}
   <div style={{ height: 40 }}></div>
 
-  {/* ------------------------------ */}
-  {/*       FINANCING KPI BLOCK       */}
-  {/* ------------------------------ */}
+{/* ------------------------------ */}
+{/*       FINANCING KPI BLOCK       */}
+{/* ------------------------------ */}
 
-  <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
-    Financing Ratios
-  </h1>
+<h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+  Financing Ratios
+</h1>
 
+<div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 24,
+  }}
+>
+  {/* ICR */}
   <div
     style={{
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 24,
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
     }}
   >
-    <div
-      style={{
-        flex: "1 1 320px",
-        border: "1px solid #eee",
-        borderRadius: 8,
-        padding: 16,
-      }}
-    >
-      <h3 style={{ marginBottom: 8 }}>ICR</h3>
-      <ICRChart years={years} data={icr} />
-    </div>
+    <h3 style={{ marginBottom: 8 }}>ICR</h3>
+    <ICRChart years={years} data={icr} />
+  </div>
 
-    <div
-      style={{
-        flex: "1 1 320px",
-        border: "1px solid #eee",
-        borderRadius: 8,
-        padding: 16,
-      }}
-    >
-      <h3 style={{ marginBottom: 8 }}>EBITDA / Total Debt</h3>
-      <EbitdaToDebtChart years={years} data={ebitdaToDebt} />
-    </div>
+  {/* Solvency Ratio */}
+  <div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Solvency Ratio</h3>
+    <SolvencyRatioChart years={years} data={solvencyRatio} />
+  </div>
 
-    <div
-      style={{
-        flex: "1 1 320px",
-        border: "1px solid #eee",
-        borderRadius: 8,
-        padding: 16,
-      }}
-    >
-      <h3 style={{ marginBottom: 8 }}>Net Debt / EBITDA</h3>
-      <NetDebtToEbitdaChart years={years} data={netDebtToEbitda} />
-    </div>
+  {/* Debt / EBITDA */}
+  <div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Debt / EBITDA</h3>
+    <DebtToEbitdaChart years={years} data={debtToEbitda} />
+  </div>
 
-    <div
-      style={{
-        flex: "1 1 320px",
-        border: "1px solid #eee",
-        borderRadius: 8,
-        padding: 16,
-      }}
-    >
-      <h3 style={{ marginBottom: 8 }}>Debt / Equity</h3>
-      <DebtToEquityChart years={years} data={debtToEquity} />
-    </div>
+  {/* Debt / Equity */}
+  <div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Debt / Equity</h3>
+    <DebtToEquityChart years={years} data={debtToEquity} />
+  </div>
+
+
+</div>
+
+{/* ------------------------------ */}
+{/*   OTHER KPIs    */}
+{/* ------------------------------ */}
+
+<h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+  Other KPIs
+</h1>
+
+<div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 24,
+  }}
+>
+
+  {/* Net Result */}
+
+<div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Net Result</h3>
+    <NetResultChart years={years} data={netResult} />
+  </div>
+
+  {/* Net Working Capital */}
+  <div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Net Working Capital</h3>
+    <NetWorkingCapitalChart years={years} data={netWorkingCapital} />
+  </div>
+
+  {/* Net Debt */}
+  <div
+    style={{
+      flex: "1 1 320px",
+      border: "1px solid #eee",
+      borderRadius: 8,
+      padding: 16,
+    }}
+  >
+    <h3 style={{ marginBottom: 8 }}>Net Debt</h3>
+    <NetDebtChart years={years} data={netDebt} />
   </div>
 
 </div>
+
+</div>
+
 
     </>
   );

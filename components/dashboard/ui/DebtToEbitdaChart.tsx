@@ -1,9 +1,11 @@
+//dashboard/ui/EbitdaToDebtChart.tsx
+
 "use client";
 
 import "@/components/dashboard/ui/register";
 import { Bar } from "react-chartjs-2";
 
-export default function EbitdaToDebtChart({
+export default function debtToEbitdaChart({
   years,
   data,
 }: {
@@ -16,7 +18,7 @@ export default function EbitdaToDebtChart({
         labels: years,
         datasets: [
           {
-            label: "EBITDA / Total Debt",
+            label: "Debt / EBITDA",
             data,
           },
         ],

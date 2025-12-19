@@ -124,4 +124,12 @@
    otherCurrentLiabilitiesPct?: number;
 
    _userEdited?: boolean;
+
+   /* -------------------------------
+     SOLVENCY RATIO REQs
+   -------------------------------- */
+
+   currentAssets: number;
+   totalAssets: number;
+
    };

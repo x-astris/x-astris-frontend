@@ -145,6 +145,17 @@ export function useComputedBalance(
         dpo = ratio?.dpo ?? 0;
       }
 
+      /* ---------------- CURRENT AND TOTAL ASSETS for SOLVENCY RATIO ---------------- */
+      const currentAssets =
+        wcInventory +
+        wcReceivables +
+        wcOtherCurrentAssets +
+        cash;
+
+        const totalAssets =
+        fixedAssets +
+        currentAssets;
+
       /* ---------------- PUSH RESULT ---------------- */
 
       result.push({
@@ -162,6 +173,9 @@ export function useComputedBalance(
         wcPayables,
         wcOtherCurrentLiabilities,
         workingCapital,
+
+        currentAssets,
+        totalAssets,
 
         capitalEmployed: fixedAssets + workingCapital,
         equityDebt: equity + totalDebt,
